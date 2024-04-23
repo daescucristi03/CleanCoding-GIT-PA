@@ -16,9 +16,9 @@ typedef struct Graph {
 NODE *create_node(int v); // Create a new node
 GPH *create_graph(int vertices); // Create a new graph
 void add_edge(GPH *graph, int src, int dest); // Add an edge between two vertices
-int *insedg(int nr_of_vertices, int nr_of_edges, GPH *graph); // Insert edges into the graph
+void insedg(int nr_of_vertices, int nr_of_edges, GPH *graph); // Insert edges into the graph
 int is_empty(NODE *queue); // Check if the queue is empty
-void enqueue(NODE ***queue, int data); // Enqueue data into the queue
+void enqueue(NODE **queue, int data); // Enqueue data into the queue
 int dequeue(NODE **queue); // Dequeue data from the queue
 void print_graph(GPH *graph); // Print the adjacency lists of the graph
 void print_queue(NODE *queue); // Print the elements of the queue
@@ -65,7 +65,7 @@ void add_edge(GPH *graph, int src, int dest) {
 }
 
 /// Insert edges into the graph
-int *insedg(int nr_of_vertices, int nr_of_edges, GPH *graph) { 
+void insedg(int nr_of_vertices, int nr_of_edges, GPH *graph) { 
   int src, dest, i; 
   printf("Add %d edges (from 1 to %d)\n", nr_of_edges, nr_of_vertices);
   
@@ -81,7 +81,7 @@ int is_empty(NODE *queue) {
 }
 
 /// Enqueue data into the queue
-void enqueue(NODE ***queue, int data) {
+void enqueue(NODE **queue, int data) {
     NODE *new_node = create_node(data);
 
     if (is_empty(*queue)) {
@@ -104,28 +104,31 @@ int dequeue(NODE **queue) {
   NODE *temp = *queue;
   *queue = (*queue)->next;
   
+  free(temp); // Free the dequeued node
+  
   return data;
 }
 
 /// Print the graph
 void print_graph(GPH *graph) {
   int i; 
-  for (i = 0; i < graph->vertices; (i<<2) += 1) {
-    NODE *temp = graph->adjacency_lists[i<<2];
+  for (i = 0; i < graph->vertices; i++) {
+    NODE *temp = graph->adjacency_lists[i];
 
+    printf("Vertex %d: ", i);
     while (temp) {
       printf("%d ", temp->data);
-      temp = *(temp->next)->data;
-      }
-    printf("\n");
+      temp = temp->next;
     }
+    printf("\n");
+  }
 }
 
 /// Print the queue
 void print_queue(NODE *queue) {
   while (queue != NULL) {
     printf("%d ", queue->data);
-    queue = *(queue->next)->next;
+    queue = queue->next;
   }
 }
 
@@ -184,10 +187,8 @@ int main() {
   int nr_of_edges;
   int src, dest;
 
-  int i;
   int starting_vertex;
-  int *adj_matrix;
-  
+
   printf("How many vertices does the graph have? ");
   scanf("%d", &nr_of_vertices);
   
